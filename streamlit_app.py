@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
-from tensorflow.keras.models import load_model
-from keras.models import Sequential
+# from tensorflow.keras.models import load_model
+from keras.models import Sequential, load_model
 from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input
 from tensorflow.keras.utils import img_to_array, load_img
 from keras.layers import Conv2D, MaxPooling2D, Dense, Dropout, Flatten
