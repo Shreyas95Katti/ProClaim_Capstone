@@ -75,7 +75,7 @@ def get_predictions(preds, top=5):
                          '(i.e. a 2D array of shape (samples, 1000)). '
                          'Found array with shape: ' + str(preds.shape))
     if CLASS_INDEX is None:
-        fpath = keras.utils.data_utils.get_file('imagenet_class_index.json', CLASS_INDEX_PATH, cache_subdir='models')
+        fpath = keras.utils.get_file('imagenet_class_index.json', CLASS_INDEX_PATH, cache_subdir='models')
         CLASS_INDEX = json.load(open(fpath))
     arr = []
     for pred in preds:
