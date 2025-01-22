@@ -50,8 +50,6 @@ model2.add(Dropout(0.2))
 model2.add(Dense(2, activation='softmax'))
 
 model2.load_weights("./Vehicle_Damaged_Decision_Model.h5")
-model3 = load_model("./Vehicle_Damage_Localization_Model.h5")
-model4 = load_model("./Vehicle_Damage_Severity_Model.h5")
 model_obj = YOLO("./Vehicle_Damage_Part_YOLOv8_FineTuned_Model.pt")
 model_seg = YOLO("./Vehicle_Damage_Type_YOLOv8_FineTuned_Model.pt")
 
@@ -99,16 +97,6 @@ def pipe2(img_256, model):
     preds = model.predict(img_256)
     return preds[0][0] >= 0.45
 
-def pipe3_loc(img_256, model):
-    pred = model.predict(img_256)
-    labels = {0: 'front', 1: 'rear', 2: 'side'}
-    return labels[np.argmax(pred)]
-
-def pipe3_sev(img_256, model):
-    pred = model.predict(img_256)
-    labels = {0: 'minor', 1: 'moderate', 2: 'severe'}
-    return labels[np.argmax(pred)]
-
 def object_detect(img_path):
     result = model_obj.predict(img_path, conf=0.3)
     if result:
@@ -142,14 +130,10 @@ if uploaded_file is not None:
 
         if pipe1(img_224, model1):
             if pipe2(img_256, model2):
-                location = pipe3_loc(img_256, model3)
-                severity = pipe3_sev(img_256, model4)
                 object_msg, obj_image_path = object_detect(img_path)
                 segmentation_msg, seg_image_path = segment(img_path)
 
                 st.success("Assessment Completed!")
-                st.write(f"**Damage Location:** {location}")
-                st.write(f"**Damage Severity:** {severity}")
                 st.image(obj_image_path, caption="Object Detection Result", use_container_width=True)
                 st.write(f"**Segmentation:** {segmentation_msg}")
                 st.image(seg_image_path, caption="Segmentation Result", use_container_width=True)
