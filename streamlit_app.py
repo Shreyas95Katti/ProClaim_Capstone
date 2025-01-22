@@ -18,8 +18,8 @@ warnings.filterwarnings('ignore')
 CLASS_INDEX = None
 CLASS_INDEX_PATH = 'https://s3.amazonaws.com/deep-learning-models/image-models/imagenet_class_index.json'
 
-model_urls = ["https://drive.google.com/uc?id=1xKyczvMpIVCx4XB72lH1sQlnvN_6n_Q8", "https://drive.google.com/uc?id=14fE5lDjroLDppP3EuPyipE3TlYumCGr0", "https://drive.google.com/uc?id=1UGyuOwtaaUtrXJPMfKXkZUqXa2tzxVF7", "https://drive.google.com/uc?id=17DvZPqdMaku7a_wrw2l7eq9qqTVlxTmG", "https://drive.google.com/uc?id=1VJe4GlOKjf9yj-QMuHyV7D5oFZCqLqGA"]
-model_file_paths = ["Vehicle_Damaged_Decision_Model.h5", "Vehicle_Damage_Localization_Model.h5", "Vehicle_Damage_Severity_Model.h5", "Vehicle_Damage_Part_YOLOv8_FineTuned_Model.pt", "Vehicle_Damage_Type_YOLOv8_FineTuned_Model.pt"]
+model_urls = ["https://drive.google.com/uc?id=1xKyczvMpIVCx4XB72lH1sQlnvN_6n_Q8", "https://drive.google.com/uc?id=17DvZPqdMaku7a_wrw2l7eq9qqTVlxTmG", "https://drive.google.com/uc?id=1VJe4GlOKjf9yj-QMuHyV7D5oFZCqLqGA"]
+model_file_paths = ["Vehicle_Damaged_Decision_Model.h5", "Vehicle_Damage_Part_YOLOv8_FineTuned_Model.pt", "Vehicle_Damage_Type_YOLOv8_FineTuned_Model.pt"]
 
 def download_models(model_url, model_file_path):
     if not os.path.exists(model_file_path):
