@@ -51,7 +51,7 @@ model2.add(Dense(2, activation='softmax'))
 
 model2.load_weights("./Vehicle_Damaged_Decision_Model.h5")
 model_obj = YOLO("./Vehicle_Damage_Part_YOLOv8_FineTuned_Model.pt")
-model_seg = YOLO("./Vehicle_Damage_Type_YOLOv8_FineTuned_Model.pt")
+# model_seg = YOLO("./Vehicle_Damage_Type_YOLOv8_FineTuned_Model.pt")
 
 with open("./VGG16_Category_List.pk", 'rb') as f:
     cat_list = pk.load(f)
