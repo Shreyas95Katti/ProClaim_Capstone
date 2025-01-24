@@ -18,8 +18,8 @@ warnings.filterwarnings('ignore')
 CLASS_INDEX = None
 CLASS_INDEX_PATH = 'https://s3.amazonaws.com/deep-learning-models/image-models/imagenet_class_index.json'
 
-model_urls = ["https://drive.google.com/uc?id=1xKyczvMpIVCx4XB72lH1sQlnvN_6n_Q8", "https://drive.google.com/uc?id=17DvZPqdMaku7a_wrw2l7eq9qqTVlxTmG"]#, "https://drive.google.com/uc?id=1VJe4GlOKjf9yj-QMuHyV7D5oFZCqLqGA"]
-model_file_paths = ["Vehicle_Damaged_Decision_Model.h5", "Vehicle_Damage_Part_YOLOv8_FineTuned_Model.pt"]#, "Vehicle_Damage_Type_YOLOv8_FineTuned_Model.pt"]
+model_urls = ["https://drive.google.com/uc?id=1xKyczvMpIVCx4XB72lH1sQlnvN_6n_Q8", "https://drive.google.com/uc?id=17DvZPqdMaku7a_wrw2l7eq9qqTVlxTmG", "https://drive.google.com/uc?id=1VJe4GlOKjf9yj-QMuHyV7D5oFZCqLqGA"]
+model_file_paths = ["Vehicle_Damaged_Decision_Model.h5", "Vehicle_Damage_Part_YOLOv8_FineTuned_Model.pt", "Vehicle_Damage_Type_YOLOv8_FineTuned_Model.pt"]
 
 def download_models(model_url, model_file_path):
     if not os.path.exists(model_file_path):
@@ -30,7 +30,7 @@ def download_models(model_url, model_file_path):
 for i in range(len(model_urls)):
     download_models(model_urls[i], model_file_paths[i])
 
-model1 = VGG16(weights='imagenet')
+# model1 = VGG16(weights='imagenet')
 model2 = Sequential()
 model2.add(Conv2D(16, (3, 3), activation='relu', input_shape=(256,256, 3)))
 model2.add(MaxPooling2D(pool_size=(2, 2)))
@@ -51,10 +51,10 @@ model2.add(Dense(2, activation='softmax'))
 
 model2.load_weights("./Vehicle_Damaged_Decision_Model.h5")
 model_obj = YOLO("./Vehicle_Damage_Part_YOLOv8_FineTuned_Model.pt")
-# model_seg = YOLO("./Vehicle_Damage_Type_YOLOv8_FineTuned_Model.pt")
+model_seg = YOLO("./Vehicle_Damage_Type_YOLOv8_FineTuned_Model.pt")
 
-with open("./VGG16_Category_List.pk", 'rb') as f:
-    cat_list = pk.load(f)
+# with open("./VGG16_Category_List.pk", 'rb') as f:
+#     cat_list = pk.load(f)
 
 def prepare_image_224(img_path):
     img = load_img(img_path, target_size=(224, 224))
@@ -67,31 +67,31 @@ def prepare_img_256(img_path):
     x = img_to_array(img) / 255.0
     return np.expand_dims(x, axis=0)
 
-def get_predictions(preds, top=5):
-    global CLASS_INDEX
-    if len(preds.shape) != 2 or preds.shape[1] != 1000:
-        raise ValueError('`decode_predictions` expects '
-                         'a batch of predictions '
-                         '(i.e. a 2D array of shape (samples, 1000)). '
-                         'Found array with shape: ' + str(preds.shape))
-    if CLASS_INDEX is None:
-        fpath = keras.utils.get_file('imagenet_class_index.json', CLASS_INDEX_PATH, cache_subdir='models')
-        CLASS_INDEX = json.load(open(fpath))
-    arr = []
-    for pred in preds:
-        top_indices = pred.argsort()[-top:][::-1]
-        indexes = [tuple(CLASS_INDEX[str(i)]) + (pred[i],) for i in top_indices]
-        indexes.sort(key=lambda x: x[2], reverse=True)
-        arr.append(indexes)
-    return arr
+# def get_predictions(preds, top=5):
+#     global CLASS_INDEX
+#     if len(preds.shape) != 2 or preds.shape[1] != 1000:
+#         raise ValueError('`decode_predictions` expects '
+#                          'a batch of predictions '
+#                          '(i.e. a 2D array of shape (samples, 1000)). '
+#                          'Found array with shape: ' + str(preds.shape))
+#     if CLASS_INDEX is None:
+#         fpath = keras.utils.get_file('imagenet_class_index.json', CLASS_INDEX_PATH, cache_subdir='models')
+#         CLASS_INDEX = json.load(open(fpath))
+#     arr = []
+#     for pred in preds:
+#         top_indices = pred.argsort()[-top:][::-1]
+#         indexes = [tuple(CLASS_INDEX[str(i)]) + (pred[i],) for i in top_indices]
+#         indexes.sort(key=lambda x: x[2], reverse=True)
+#         arr.append(indexes)
+#     return arr
 
-def pipe1(img_224, model):
-    out = model.predict(img_224)
-    preds = get_predictions(out, top=5)
-    for pred in preds[0]:
-        if pred[0:2] in cat_list:
-            return True
-        return False
+# def pipe1(img_224, model):
+#     out = model.predict(img_224)
+#     preds = get_predictions(out, top=5)
+#     for pred in preds[0]:
+#         if pred[0:2] in cat_list:
+#             return True
+#         return False
 
 def pipe2(img_256, model):
     preds = model.predict(img_256)
@@ -128,17 +128,17 @@ if uploaded_file is not None:
         img_224 = prepare_image_224(img_path)
         img_256 = prepare_img_256(img_path)
 
-        if pipe1(img_224, model1):
-            if pipe2(img_256, model2):
-                object_msg, obj_image_path = object_detect(img_path)
-                # segmentation_msg, seg_image_path = segment(img_path)
+        # if pipe1(img_224, model1):
+        if pipe2(img_256, model2):
+            object_msg, obj_image_path = object_detect(img_path)
+            segmentation_msg, seg_image_path = segment(img_path)
 
-                st.success("Assessment Completed!")
-                st.image(obj_image_path, caption="Object Detection Result", use_container_width=True)
-                # st.write(f"**Segmentation:** {segmentation_msg}")
-                # st.image(seg_image_path, caption="Segmentation Result", use_container_width=True)
+            st.success("Assessment Completed!")
+            st.image(obj_image_path, caption="Object Detection Result", use_container_width=True)
+            st.write(f"**Segmentation:** {segmentation_msg}")
+            st.image(seg_image_path, caption="Segmentation Result", use_container_width=True)
 
-            else:
-                st.warning("Damage validation failed. Please upload a clearer image.")
         else:
-            st.warning("Car validation failed. Please upload a valid car image.")
+            st.warning("Damage validation failed. Please upload a clearer image.")
+        # else:
+        #     st.warning("Car validation failed. Please upload a valid car image.")
